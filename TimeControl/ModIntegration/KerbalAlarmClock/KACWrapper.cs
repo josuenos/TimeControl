@@ -613,7 +613,7 @@ namespace TimeControl
             String strMessageLine = String.Format( "{0},{2}-{3},{1}",
                 DateTime.Now, Message, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
                 System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name );
-            UnityEngine.Debug.Log( strMessageLine );
+            //UnityEngine.Debug.Log( strMessageLine ); // FIXME
         }
         #endregion
     }

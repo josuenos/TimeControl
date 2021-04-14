@@ -72,13 +72,13 @@ namespace TimeControl
             switch (sev)
             {
                 case LogSeverity.Error:
-                    UnityEngine.Debug.LogError( message );
+                    // UnityEngine.Debug.LogError( message );
                     break;
                 case LogSeverity.Warning:
-                    UnityEngine.Debug.LogWarning( message );
+                    // UnityEngine.Debug.LogWarning( message );
                     break;
                 default:
-                    UnityEngine.Debug.Log( message );
+                    // UnityEngine.Debug.Log( message ); // FIXME
                     break;
             }
         }
