@@ -1,24 +1,34 @@
-﻿namespace TimeControl.KeyBindings
-{
-    public class SlowMoDeactivate : TimeControlKeyBinding
-    {
-        public SlowMoDeactivate()
-        {
-            TimeControlKeyActionName = TimeControlKeyAction.SlowMoDeactivate;
-            SetDescription = Description = "Deactivate Slow-Motion";
-        }
+﻿using System;
+using UnityEngine;
 
+namespace TimeControl.KeyBindings
+{
+    public class HyperRateChangeToLowerRate : TimeControlKeyBinding
+    {
+        public HyperRateChangeToLowerRate()
+        {
+            TimeControlKeyActionName = TimeControlKeyAction.HyperRateChangeToLowerRate;
+            SetDescription = Description = "Hyper-Warp Rate Step Decrease";
+        }
+        
         public override void Press()
         {
-            if (SlowMoController.IsReady)
+            if (HyperWarpController.IsReady)
             {
-                SlowMoController.Instance.DeactivateSlowMo();
+                if (HyperWarpController.Instance.IsHyperWarping)
+                { 
+                    HyperWarpController.Instance.ChangeToLowerRate();
+                    if (HyperWarpController.Instance.MaxAttemptedRate == 1)
+                    {
+                        HyperWarpController.Instance.DeactivateHyper();
+                    }
+                }
             }
         }
     }
 }
 /*
-All code in this file Copyright(c) 2016 Nate West
+All code in this file Copyright(c) 2020 Nate West
 
 The MIT License (MIT)
 

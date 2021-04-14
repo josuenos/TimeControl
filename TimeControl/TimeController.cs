@@ -1,48 +1,17 @@
-﻿/*
-All code in this file Copyright(c) 2016 Nate West
-Rewritten from scratch, but based on code Copyright(c) 2014 Xaiier
-
-The MIT License (MIT)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-using System;
-using System.Reflection;
-using UnityEngine;
-using KSPPluginFramework;
+﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using KSP.UI.Dialogs;
 using System.Linq;
 
 namespace TimeControl
 {
 
-    [KSPAddon( KSPAddon.Startup.MainMenu, true )]
+    [KSPAddon( KSPAddon.Startup.Instantly, true )]
     internal class TimeController : MonoBehaviour
     {
         #region Singleton
-        public static bool IsReady { get; private set; } = false;
-        private static TimeController instance;
-        public static TimeController Instance { get { return instance; } }
+        public static TimeController Instance { get; private set; }
+        public static bool IsReady { get; private set; } = false;        
         #endregion
 
         #region Properties and fields  
@@ -101,7 +70,7 @@ namespace TimeControl
             {
                 if (Time.timeScale != value)
                 {
-                    Time.timeScale = value;
+                    Time.timeScale = value;                    
                     TimeControlEvents.OnTimeControlTimeScaleChanged?.Fire( Time.timeScale );
                 }
             }
@@ -125,6 +94,7 @@ namespace TimeControl
                     {
                         Planetarium.fetch.fixedDeltaTime = Time.fixedDeltaTime;
                     }
+
                     TimeControlEvents.OnTimeControlFixedDeltaTimeChanged?.Fire( Time.fixedDeltaTime );
                 }
             }
@@ -209,7 +179,7 @@ namespace TimeControl
             using (EntryExitLogger.EntryExitLog( logBlockName, EntryExitLoggerOptions.All ))
             {
                 DontDestroyOnLoad( this );
-                instance = this;
+                Instance = this;
             }
         }
         private void Start()
@@ -224,7 +194,7 @@ namespace TimeControl
                 GameEvents.onGamePause.Add( this.onGamePause );
                 GameEvents.onGameUnpause.Add( this.onGameUnpause );
 
-                Log.Info( "TimeController.Instance is Ready!", logBlockName );
+                Log.Info( nameof( TimeController ) + " is Ready!", logBlockName );
                 IsReady = true;
             }
         }
@@ -288,6 +258,12 @@ namespace TimeControl
                     {
                         SetupKACAlarms();
                     }
+                }
+
+                // Reset 'Can Rails Warp' if SlowMo/Hyper messed it up
+                if (RailsWarpController.Instance != null)
+                {
+                    RailsWarpController.Instance.CanRailsWarp = true;
                 }
 
                 TimeControlEvents.OnTimeControlTimeUnpaused?.Fire( true );
@@ -501,3 +477,29 @@ namespace TimeControl
         #endregion
     }
 }
+
+
+/*
+All code in this file Copyright(c) 2016 Nate West
+
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/

@@ -1,40 +1,5 @@
-﻿/*
-All code in this file Copyright(c) 2016 Nate West
-
-The MIT License (MIT)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using SC = System.ComponentModel;
-using System.Reflection;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using KSP.IO;
-using KSP.UI.Screens;
-using KSP.UI.Dialogs;
-using KSPPluginFramework;
-
 
 namespace TimeControl
 {
@@ -342,7 +307,6 @@ namespace TimeControl
             }
             GUILayout.EndHorizontal();
 
-            GUIBreak();
         }
 
         /// <summary>
@@ -377,10 +341,8 @@ namespace TimeControl
             GUILayout.EndHorizontal();
             GUI.enabled = priorEnabled;
 
-            GUIBreak();
-
             GUILayout.BeginHorizontal();
-            {                
+            {
                 GUI.enabled = priorEnabled && v != null;
                 GUILayout.Label( "Vessel", GUILayout.Width( labelWidth ) );
                 GUI.enabled = priorEnabled;
@@ -401,7 +363,7 @@ namespace TimeControl
                 }
                 GUI.enabled = priorEnabled;
 
-                
+
                 var tgtOrbit = v?.targetObject?.GetOrbit();
 
                 if (tgtOrbit == null)
@@ -443,23 +405,72 @@ namespace TimeControl
                     GUI.enabled = priorEnabled;
                 }
 
-                    GUI.enabled = priorEnabled && vesselHasOrbit && (SOITransitions.Contains( v.orbit.patchEndTransition ));
+                GUI.enabled = priorEnabled && vesselHasOrbit && (SOITransitions.Contains( v.orbit.patchEndTransition ));
                 if (GUILayout.Button( "SOI", GUILayout.Width( buttonWidth ) ))
                 {
                     TargetUT = v.orbit.EndUT;
                     RailsWarpController.Instance.RailsWarpToUT( TargetUT );
                 }
                 GUI.enabled = priorEnabled;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            {
+                GUI.enabled = priorEnabled && v != null;
+                GUILayout.Label( "Manuver", GUILayout.Width( labelWidth ) );
+                GUI.enabled = priorEnabled;
 
                 var mn = v?.FirstUpcomingManuverNode( this.CurrentUT );
+
                 GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
-                if (GUILayout.Button( "Mnv", GUILayout.Width( buttonWidth ) ))
+                if (GUILayout.Button( "Burn", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn);
+                    RailsWarpController.Instance.RailsWarpToUT( TargetUT );
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "B-10", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn) - 10;
+                    RailsWarpController.Instance.RailsWarpToUT( TargetUT );
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "B-30", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn) - 30;
+                    RailsWarpController.Instance.RailsWarpToUT( TargetUT );
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "Node", GUILayout.Width( buttonWidth ) ))
                 {
                     TargetUT = mn.UT;
                     RailsWarpController.Instance.RailsWarpToUT( TargetUT );
                 }
                 GUI.enabled = priorEnabled;
-            }
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "N-10", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = mn.UT - 10;
+                    RailsWarpController.Instance.RailsWarpToUT( TargetUT );
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "N-30", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = mn.UT - 30;
+                    RailsWarpController.Instance.RailsWarpToUT( TargetUT );
+                }
+                GUI.enabled = priorEnabled;
+            }       
             GUILayout.EndHorizontal();
 
             GUIBreak();
@@ -491,3 +502,26 @@ namespace TimeControl
         }
     }
 }
+/*
+All code in this file Copyright(c) 2016 Nate West
+
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/

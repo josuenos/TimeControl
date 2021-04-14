@@ -1,40 +1,5 @@
-﻿/*
-All code in this file Copyright(c) 2016 Nate West
-
-The MIT License (MIT)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using SC = System.ComponentModel;
-using System.Reflection;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using KSP.IO;
-using KSP.UI.Screens;
-using KSP.UI.Dialogs;
-using KSPPluginFramework;
-
 
 namespace TimeControl
 {
@@ -54,10 +19,12 @@ namespace TimeControl
 
         private double TargetUT
         {
-            get {
+            get
+            {
                 return targetUT;
             }
-            set {                
+            set
+            {
                 targetUT = value;
                 if (targetUT < CurrentUT)
                 {
@@ -65,17 +32,17 @@ namespace TimeControl
                 }
                 targetUTtextfield = targetUT.ToString();
             }
-        }        
+        }
 
         private Vessel currentV;
         private ITargetable currentTarget;
         private CelestialBody currentCB;
-        
+
         private double CurrentUT
         {
             get => Planetarium.GetUniversalTime();
         }
-        
+
         private IDateTimeFormatter CurrentDTF
         {
             get => KSPUtil.dateTimeFormatter;
@@ -132,7 +99,7 @@ namespace TimeControl
         {
             UpdateVessel();
         }
-        
+
         internal void UpdateVessel()
         {
             if (HighLogic.LoadedScene == GameScenes.FLIGHT && FlightGlobals.ActiveVessel != null)
@@ -142,8 +109,8 @@ namespace TimeControl
                 currentTarget = currentV.targetObject;
             }
             else if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-            {                
-                PlanetariumCamera pc = PlanetariumCamera.fetch;                
+            {
+                PlanetariumCamera pc = PlanetariumCamera.fetch;
                 if (pc.target != null && pc.target.type == MapObject.ObjectType.Vessel)
                 {
                     currentV = pc.target.vessel;
@@ -170,7 +137,7 @@ namespace TimeControl
                 currentTarget = null;
             }
         }
-        
+
         private void GUIBreak()
         {
             GUILayout.Label( "", GUILayout.Height( 5 ) );
@@ -184,7 +151,7 @@ namespace TimeControl
             }
 
             bool priorEnabled = GUI.enabled;
-            
+
             GUILayout.BeginVertical();
             {
                 GUIHeader();
@@ -192,25 +159,25 @@ namespace TimeControl
                 GUI.enabled = priorEnabled && !RailsWarpController.Instance.IsRailsWarping;
 
                 GUITargetUT();
-               
+
                 GUIAddRemove();
 
                 GUIVesselSetUT();
 
                 GUICustomTime();
 
-                GUINextKAC();                
+                GUINextKAC();
             }
             GUILayout.EndVertical();
 
             GUI.enabled = priorEnabled;
         }
-        
+
         /// <summary>
         /// Header with current UT / warping to UT, and toggle for pause on time reached
         /// </summary>
         private void GUIHeader()
-        {            
+        {
             GUILayout.BeginHorizontal();
             {
                 RailsWarpController.Instance.RailsPauseOnUTReached = GUILayout.Toggle( RailsWarpController.Instance.RailsPauseOnUTReached, "Pause on Time Reached" );
@@ -312,11 +279,11 @@ namespace TimeControl
                     {
                         CheckTargetUT();
                         if (GameSettings.KERBIN_TIME)
-                        {                            
+                        {
                             TargetUT = TargetUT + ((Event.current.button == rightMouseButton ? -x : x) * CurrentDTF.Hour);
                         }
                         else
-                        {                            
+                        {
                             TargetUT = TargetUT + ((Event.current.button == rightMouseButton ? -x : x) * 60 * 60);
                         }
                     }
@@ -386,7 +353,6 @@ namespace TimeControl
             }
             GUILayout.EndHorizontal();
 
-            GUIBreak();
         }
 
         /// <summary>
@@ -420,8 +386,6 @@ namespace TimeControl
             GUILayout.EndHorizontal();
             GUI.enabled = priorEnabled;
 
-            GUIBreak();
-
             GUILayout.BeginHorizontal();
             {
                 GUI.enabled = priorEnabled && v != null;
@@ -442,7 +406,7 @@ namespace TimeControl
                 }
                 GUI.enabled = priorEnabled;
 
-                
+
                 var tgtOrbit = v?.targetObject?.GetOrbit();
 
                 if (tgtOrbit == null)
@@ -479,7 +443,7 @@ namespace TimeControl
                     }
                     GUI.enabled = priorEnabled;
                 }
-               
+
 
                 GUI.enabled = priorEnabled && vesselHasOrbit && (SOITransitions.Contains( v.orbit.patchEndTransition ));
                 if (GUILayout.Button( "SOI", GUILayout.Width( buttonWidth ) ))
@@ -487,12 +451,57 @@ namespace TimeControl
                     TargetUT = v.orbit.EndUT;
                 }
                 GUI.enabled = priorEnabled;
+            }
+            GUILayout.EndHorizontal();
+
+
+            GUILayout.BeginHorizontal();
+            {
+                GUI.enabled = priorEnabled && v != null;
+                GUILayout.Label( "Manuver", GUILayout.Width( labelWidth ) );
+                GUI.enabled = priorEnabled;
 
                 var mn = v?.FirstUpcomingManuverNode( this.CurrentUT );
+
                 GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
-                if (GUILayout.Button( "Mnv", GUILayout.Width( buttonWidth ) ))
+                if (GUILayout.Button( "Burn", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn);
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "B-10", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn) - 10;
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "B-30", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = (CurrentUT + mn.startBurnIn) - 30;
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "Node", GUILayout.Width( buttonWidth ) ))
                 {
                     TargetUT = mn.UT;
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "N-10", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = mn.UT - 10;
+                }
+                GUI.enabled = priorEnabled;
+
+                GUI.enabled = priorEnabled && vesselHasOrbit && (mn != null);
+                if (GUILayout.Button( "N-30", GUILayout.Width( buttonWidth ) ))
+                {
+                    TargetUT = mn.UT - 30;
                 }
                 GUI.enabled = priorEnabled;
             }
@@ -541,16 +550,16 @@ namespace TimeControl
                         }
                         else
                         {
-                            computedOffset = (((double)years * 365 * 24 * 60 * 60) + ((double)days * 24 * 60 * 60) + ((double)hrs * 60 * 60) + ((double)min * 60) + (double)sec);                            
+                            computedOffset = (((double)years * 365 * 24 * 60 * 60) + ((double)days * 24 * 60 * 60) + ((double)hrs * 60 * 60) + ((double)min * 60) + (double)sec);
                         }
 
-                        TargetUT = TargetUT + ( Event.current.button == rightMouseButton ? -computedOffset : computedOffset);
+                        TargetUT = TargetUT + (Event.current.button == rightMouseButton ? -computedOffset : computedOffset);
                     }
                 }
             }
             GUILayout.EndHorizontal();
         }
-        
+
         /// <summary>
         /// Warp to next KAC Alarm
         /// </summary>
@@ -576,3 +585,26 @@ namespace TimeControl
         }
     }
 }
+/*
+All code in this file Copyright(c) 2016 Nate West
+
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
